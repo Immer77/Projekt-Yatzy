@@ -40,7 +40,7 @@ public class YatzyTest {
         int result1 = yatzy.onePairPoints();
         Assert.assertEquals(8, result1);
         
-        int[] values2 = { 4, 4, 6, 4, 6 };
+        int[] values2 = { 4, 3, 6, 4, 6 };
         yatzy.setValues(values2);
         int result2 = yatzy.onePairPoints();
         Assert.assertEquals(12, result2);

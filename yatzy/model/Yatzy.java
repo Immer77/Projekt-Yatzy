@@ -40,7 +40,6 @@ public class Yatzy {
      * Returns the number of times the 5 dice has been thrown.
      */
     public int getThrowCount() {
-        // TODO Check
         return this.throwCount; //returnerer Throwcount mængden af kast
     }
 
@@ -48,7 +47,6 @@ public class Yatzy {
      * Resets the throw count.
      */
     public void resetThrowCount() {
-        // TODO Check
         this.throwCount = 0; //Sætter throwcount til 0
     }
 
@@ -57,10 +55,9 @@ public class Yatzy {
      * boolean values.
      */
     public void throwDice(boolean[] holds) {
-        // TODO Check
         for (int i = 0; i < values.length; i++) {
             if (!holds[i]) { //Hvis han ikke holder på terningen skal den kastes
-                values[i] = random.nextInt(1, 6);
+                values[i] = random.nextInt(1, 7);
             }
         }
         throwCount++;
@@ -131,8 +128,7 @@ public class Yatzy {
         int sumOfPair = 0;
         for (int i = 0; i < counts.length; i++) {
             if (counts[i] >= 2) { //Hvis counts er større end eller lig med 2
-                sumOfPair = counts[i] * i; // Så kan vi ligge i som er facevalue og gange den med 2 for at få points
-
+                sumOfPair = i * 2; // Så kan vi ligge i som er facevalue og gange den med 2 for at få points
             }
         }
         return sumOfPair;
@@ -144,7 +140,7 @@ public class Yatzy {
      * with a different face value.
      */
     public int twoPairPoints() {
-        // TODO
+
         int[] count = calcCounts();
         int sumOfPairs = 0;
         for (int i = 1; i < count.length; i++) {
@@ -160,7 +156,6 @@ public class Yatzy {
      * the same face value.
      */
     public int threeSamePoints() {
-        // TODO
         int[] counts = calcCounts();
         int points = 0;
         for (int i = 0; i < counts.length; i++) {
@@ -251,7 +246,6 @@ public class Yatzy {
      * Returns points for chance.
      */
     public int chancePoints() { //Samler alle pointene
-        // TODO
         int sum = 0;
         for (int element : values){ //Looper igennem det
             sum+= element;
@@ -266,12 +260,12 @@ public class Yatzy {
     public int yatzyPoints() {
         // TODO
         int[] counts = calcCounts();
-        for (int i = 0; i < counts.length; i++) {
-            if (counts[i] == 5){ //Tjekker at hvis der er en der er der 5gange så er det yatzy
-                return 50;
+        int result = 0;
+        for (int count : counts) {
+            if (count == 5) { //Tjekker at hvis der er en der er der 5gange så er det yatzy
+                result = 50;
             }
         }
-        return 0;
+        return result;
     }
-
 }
