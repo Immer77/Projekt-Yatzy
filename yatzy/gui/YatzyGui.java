@@ -1,6 +1,7 @@
 package yatzy.gui;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -9,14 +10,10 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
-import org.w3c.dom.events.Event;
 import yatzy.model.Yatzy;
-
-import java.util.Arrays;
 
 public class YatzyGui extends Application {
 
@@ -44,7 +41,7 @@ public class YatzyGui extends Application {
     // corresponding to the actual face values of the 5 dice are shown.
     private TextField[] txfResults = new TextField[15];
     // Shows points in sums, bonus and total.
-    private TextField txfSumSame, txfBonus, txfSumOther, txfTotal,txf;
+    private TextField txfSumSame, txfBonus, txfSumOther, txfTotal, txf;
     // Shows the number of times the dice has been rolled.
     private Label lblNamesOfCombinations, lblRolled, lblSumSame, lblBonus, lblSumOther, lblTotal;
 
@@ -92,7 +89,7 @@ public class YatzyGui extends Application {
             txfValues[i].setEditable(false);
             txfValues[i].setPrefHeight(y);
             txfValues[i].setPrefWidth(x);
-            txfValues[i].setFont(Font.font("Times New Roman", FontWeight.BLACK,40));
+            txfValues[i].setFont(Font.font("Times New Roman", FontWeight.BLACK, 40));
             txfValues[i].setAlignment(Pos.CENTER);
 
         }
@@ -101,7 +98,7 @@ public class YatzyGui extends Application {
         for (int i = 0; i < chbHolds.length; i++) {
             chbHolds[i] = new CheckBox("Hold");
             dicePane.add(chbHolds[i], i, 1);
-			chbHolds[i].setDisable(true);
+            chbHolds[i].setDisable(true);
         }
 
 
@@ -155,7 +152,7 @@ public class YatzyGui extends Application {
             txfResults[i] = new TextField();
             txtFieldSpecs(txfResults[i]);
             scorePane.add(txfResults[i], 2, i);
-			txfResults[i].setOnMouseClicked(event -> this.chooseFieldAction(event)); //Ændrer på tekstfelterne ved mouseclick event
+            txfResults[i].setOnMouseClicked(event -> this.chooseFieldAction(event)); //Ændrer på tekstfelterne ved mouseclick event
         }
 
         btnRoll.setOnAction(event -> this.btnRollOnClick()); // btnroll til når der skal rulles med terningerne
@@ -164,10 +161,11 @@ public class YatzyGui extends Application {
     /**
      * pre: et ikke redigeret teksfelt
      * post: tekstfelt er nu sat til standard størrelse
+     *
      * @param textField
      * @return
      */
-	private TextField txtFieldSpecs(TextField textField) {
+    private TextField txtFieldSpecs(TextField textField) {
         int w = 50;
         textField.setPrefWidth(w);
         textField.setEditable(false);
@@ -180,12 +178,12 @@ public class YatzyGui extends Application {
      * btnRollOnClick metoden er den der sker når der trykkes på knappen
      */
     private void btnRollOnClick() {
-		enableHoldsButtons(); // Når der er blevet rullet en gang bliver holds knappen enabled igen så
+        enableHoldsButtons(); // Når der er blevet rullet en gang bliver holds knappen enabled igen så
         yatzy.throwDice(holds()); // Kaster terningene tager holds metoden for at se hvilke terninger der bliver beholdt
         lblRolled.setText("Rolled: " + yatzy.getThrowCount()); // Sætter antallet af rul så når man også rammer 3 skal man vælge
-		updateTextFieldWithFaceValues(); // Opdatere de tekstfelter der viser terninge slagen oppe i dicepane
-		updatingScoreBoard(); // Opdatere alle tekstfelter med yatzy
-		disableRollButton(); // Metode til når der kommer 3 rul at roll button skal disables
+        updateTextFieldWithFaceValues(); // Opdatere de tekstfelter der viser terninge slagen oppe i dicepane
+        updatingScoreBoard(); // Opdatere alle tekstfelter med yatzy
+        disableRollButton(); // Metode til når der kommer 3 rul at roll button skal disables
 
 
     }
@@ -193,98 +191,112 @@ public class YatzyGui extends Application {
     /**
      * // Metode til når der kommer 3 rul at roll button skal disables
      */
-	private void disableRollButton() {
-		if(yatzy.getThrowCount() == 3){
-			btnRoll.setDisable(true);
-		}
-	}
+    private void disableRollButton() {
+        if (yatzy.getThrowCount() == 3) {
+            btnRoll.setDisable(true);
+        }
+    }
 
     /**
      * Returner 5 boolske værdier som viser om checkboksene er blevet valgt
+     *
      * @return
      */
-	private boolean[] holds(){
-		boolean[] holds = new boolean[chbHolds.length];
-		for (int i = 0; i < holds.length; i++) {
-			if(chbHolds[i].isSelected()){
-				holds[i]=true;
-			}
-		}
-		return holds;
-	}
+    private boolean[] holds() {
+        boolean[] holds = new boolean[chbHolds.length];
+        for (int i = 0; i < holds.length; i++) {
+            if (chbHolds[i].isSelected()) {
+                holds[i] = true;
+            }
+        }
+        return holds;
+    }
 
     /**
      * Enabler holds knappen igen efter første rul
      */
-	private void enableHoldsButtons(){
-		for (CheckBox chbHold : chbHolds) {
-			chbHold.setDisable(false);
-		}
-	}
+    private void enableHoldsButtons() {
+        for (CheckBox chbHold : chbHolds) {
+            chbHold.setDisable(false);
+        }
+    }
+
+    private void disableHoldsButtons() { //Sørger for at slå alle holdsknapper fra når der ikke er blevet kastet endnu
+        if (yatzy.getThrowCount() == 0) {
+            for (CheckBox chbHold : chbHolds) {
+                chbHold.setDisable(true);
+            }
+        }
+    }
 
     /**
      * Opdatere alle tekstfelter med yatzy.getresults så vi har værdierne
      */
-	private void updatingScoreBoard(){
-		for (int i = 0; i < yatzy.getResults().length; i++) {
-            if(txfResults[i].isDisabled()){
+    private void updatingScoreBoard() {
+        for (int i = 0; i < yatzy.getResults().length; i++) {
+            if (txfResults[i].isDisabled()) {
                 //
-            }else {
+            } else {
                 txfResults[i].setText(String.valueOf(yatzy.getResults()[i]));
             }
 
-		}
-	}
+        }
+    }
 
     /**
      * opdaterer tekstfelterne i toppen med de nye værdier
      */
-	private void updateTextFieldWithFaceValues(){
-		for (int i = 0; i < txfValues.length; i++) {
-			if (!chbHolds[i].isSelected()) {
-				txfValues[i].setText(String.valueOf(yatzy.getValues()[i]));
-			}
-		}
-	}
+    private void updateTextFieldWithFaceValues() {
+        for (int i = 0; i < txfValues.length; i++) {
+            if (!chbHolds[i].isSelected()) {
+                txfValues[i].setText(String.valueOf(yatzy.getValues()[i]));
+            }
+        }
+    }
 
     /**
      * Mouse click event som trigger når man klikker på et tekstfelterne
+     *
      * @param event
      */
 
-	private void chooseFieldAction(MouseEvent event) {
-		TextField txf = (TextField) event.getSource();
-		txf.setDisable(true);
-		int sumSame = 0;
-		int sumOther = 0;
-		int bonusPoints = 0;
+    private void chooseFieldAction(MouseEvent event) {
+        TextField txf = (TextField) event.getSource();
+        txf.setDisable(true);
+        int sumSame = 0;
+        int sumOther = 0;
+        int bonusPoints = 0;
         int total = 0;
-		for (int i = 0; i < txfResults.length; i++) {
-			if(txfResults[i].isDisabled() && i < 6){
-				sumSame += Integer.parseInt(txfResults[i].getText());
+        for (int i = 0; i < txfResults.length; i++) {
+            if (txfResults[i].isDisabled() && i < 6) {
+                sumSame += Integer.parseInt(txfResults[i].getText());
                 total += Integer.parseInt(txfResults[i].getText());
 
-			}else if(txfResults[i].isDisabled() && i >= 6){
-				sumOther += Integer.parseInt(txfResults[i].getText());
+            } else if (txfResults[i].isDisabled() && i >= 6) {
+                sumOther += Integer.parseInt(txfResults[i].getText());
                 total += Integer.parseInt(txfResults[i].getText());
-			}
-		}
-		if(sumSame >= 63){
-			bonusPoints = 50;
+            }
+        }
+        if (sumSame >= 63) {
+            bonusPoints = 50;
             total += bonusPoints;
-		}
-		txfSumSame.setText(String.valueOf(sumSame));
-		txfSumOther.setText(String.valueOf(sumOther));
-		txfBonus.setText(String.valueOf(bonusPoints));
+        }
+        txfSumSame.setText(String.valueOf(sumSame));
+        txfSumOther.setText(String.valueOf(sumOther));
+        txfBonus.setText(String.valueOf(bonusPoints));
         txfTotal.setText(String.valueOf(total));
-		updateField();
-	}
+        updateField();
+        disableHoldsButtons();
+        if(checkIfGameIsOver()){
+            showAlertWindows(total);
+        }
+
+    }
 
     /**
      * opdaterer felterne og tjekker hvilke der er blevet valgt.
-     *
      */
-	private void updateField(){
+    private void updateField() {
 
         for (CheckBox chbHold : chbHolds) {
             if (chbHold.isSelected()) {
@@ -298,14 +310,34 @@ public class YatzyGui extends Application {
 
         }
 
-		yatzy.resetThrowCount();
-		btnRoll.setDisable(false);
-		lblRolled.setText("Rolled: " + yatzy.getThrowCount());
+        yatzy.resetThrowCount();
+        btnRoll.setDisable(false);
+        lblRolled.setText("Rolled: " + yatzy.getThrowCount());
 
         for (TextField txfValue : txfValues) {
             if (!txfValue.isDisabled()) {
                 txfValue.setText(null);
             }
         }
-	}
+    }
+
+    public boolean checkIfGameIsOver(){
+        boolean endgame = false;
+        for (int i = 0; i < txfResults.length; i++) {
+            if(!txfResults[i].isDisabled()){
+                endgame = false;
+            }
+            else {
+                endgame = true;
+            }
+        }
+        return endgame;
+    }
+    public void showAlertWindows(int total){
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Game is done");
+        alert.setHeaderText("Your score is: " + total);
+        alert.showAndWait();
+        Platform.exit();
+    }
 }
