@@ -326,6 +326,7 @@ public class YatzyGui extends Application {
         for (int i = 0; i < txfResults.length; i++) {
             if(!txfResults[i].isDisabled()){
                 endgame = false;
+                break;
             }
             else {
                 endgame = true;
